@@ -30,6 +30,10 @@ class CarODM {
   public async findById(id: string): Promise<ICar | null> {
     return this.model.findOne({ _id: id });
   }
+
+  public async updateById(id: string, car: ICar): Promise<void> {
+    await this.model.updateOne({ _id: id }, { $set: { ...car } });
+  }
 }
 
 export default CarODM;
