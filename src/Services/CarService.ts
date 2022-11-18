@@ -7,11 +7,8 @@ import ICar from '../Interfaces/ICar';
 import CarODM from '../Models/CarODM';
 
 class CarService {
-  private createCarDomain(car: ICar | null): Car | null {
-    if (car) {
-      return new Car(car);
-    }
-    return null;
+  private createCarDomain(car: ICar): Car {
+    return new Car(car);
   }
 
   public async create(car: ICar) {
