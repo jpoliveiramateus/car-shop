@@ -33,6 +33,22 @@ class MotorcycleService {
 
     return this.createMotorcycleDomain(motorcycle);
   }
+
+  public async updateById(id: string, motorcycle: IMotorcycle) {
+    if (!isValidObjectId(id)) throw new CustomError('Invalid mongo id', 422);
+
+    const motorcycleODM = new MotorcycleODM();
+
+    const motorcycleExists = await motorcycleODM.findById(id);
+  
+    if (!motorcycleExists) throw new CustomError('Motorcycle not found', 404);
+    
+    await motorcycleODM.updateById(id, motorcycle);
+
+    const carUpdated = await motorcycleODM.findById(id) as IMotorcycle;
+
+    return this.createMotorcycleDomain(carUpdated);
+  }
 }
 
 export default MotorcycleService;

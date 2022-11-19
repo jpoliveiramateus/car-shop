@@ -1,4 +1,4 @@
-import { Model, Schema, model, models } from 'mongoose';
+import { Model, Schema, model, models, UpdateQuery } from 'mongoose';
 
 abstract class AbstractODM<T> {
   private schema: Schema;
@@ -19,6 +19,10 @@ abstract class AbstractODM<T> {
   
   public async findById(id: string): Promise<T | null> {
     return this.model.findOne({ _id: id });
+  }
+
+  public async updateById(id: string, vehicle: T): Promise<void> {
+    await this.model.updateOne({ _id: id }, { $set: { ...vehicle as UpdateQuery<T> } });
   }
 }
 
