@@ -6,7 +6,7 @@ import Car from '../../../../src/Domains/Car';
 import CarService from '../../../../src/Services/CarService';
 import CustomError from '../../../../src/Utils/CustomError';
 
-import { carInput, carInput2 } from './CarService.mock';
+import { carInput, carInput2, carInputUpdated } from './CarService.mock';
 
 const { Model } = mongoose;
 
@@ -45,7 +45,7 @@ describe('service layer test', function () {
     expect(car).to.deep.equal(carOutput);
   });
 
-  it('should throw an error when fetching with invalid id', async function () {
+  it('should throw an error when trying to fetch a car with invalid id', async function () {
     sinon.stub(mongoose, 'isValidObjectId').returns(false);
     try {
       await new CarService().findById('INVALID_MONGO_ID');
@@ -55,12 +55,49 @@ describe('service layer test', function () {
     }
   });
 
-  it('should throw an error when fetching with non-existent id', async function () {
+  it('should throw an error when trying to fetch a car with non-existent id', async function () {
     sinon.stub(mongoose, 'isValidObjectId').returns(true);
     sinon.stub(Model, 'findOne').resolves(null);
 
     try {
       await new CarService().findById('381596bh2850akba9285');
+    } catch (error) {
+      expect((error as CustomError).message).to.be.equal('Car not found');
+      expect((error as CustomError).statusCode).to.be.equal(404);
+    }
+  });
+
+  it('should update the car successfully', async function () {
+    const carOutput: Car = new Car({ id: '381596bh2850akba9285', ...carInput });
+    const carOutputUpdated: Car = new Car({ id: '381596bh2850akba9285', ...carInputUpdated });
+
+    sinon.stub(mongoose, 'isValidObjectId').returns(true);
+    sinon.stub(Model, 'findOne').onFirstCall().resolves(carOutput).onSecondCall()
+      .resolves(carOutputUpdated);
+    sinon.stub(Model, 'updateOne').resolves();
+
+    const carUpdated = await new CarService().updateById('381596bh2850akba9285', carInputUpdated);
+
+    expect(carUpdated).to.deep.equal(carOutputUpdated);
+  });
+
+  it('should throw an error when trying to update car with invalid id', async function () {
+    sinon.stub(mongoose, 'isValidObjectId').returns(false);
+
+    try {
+      await new CarService().updateById('381596bh2850akba9285', carInputUpdated);
+    } catch (error) {
+      expect((error as CustomError).message).to.be.equal('Invalid mongo id');
+      expect((error as CustomError).statusCode).to.be.equal(422);
+    }
+  });
+
+  it('should throw an error when trying to update car with non-existent id', async function () {
+    sinon.stub(mongoose, 'isValidObjectId').returns(true);
+    sinon.stub(Model, 'findOne').resolves(null);
+
+    try {
+      await new CarService().updateById('381596bh2850akba9285', carInputUpdated);
     } catch (error) {
       expect((error as CustomError).message).to.be.equal('Car not found');
       expect((error as CustomError).statusCode).to.be.equal(404);

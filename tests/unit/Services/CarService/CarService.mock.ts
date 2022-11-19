@@ -10,6 +10,16 @@ export const carInput: ICar = {
   seatsQty: 5,
 };
 
+export const carInputUpdated: ICar = {
+  model: 'Marea',
+  year: 2002,
+  color: 'Blue',
+  status: true,
+  buyValue: 15.990,
+  doorsQty: 4,
+  seatsQty: 5,
+};
+
 export const carInput2: ICar = {
   model: 'Ferrari Maranello',
   year: 1963,
