@@ -6,7 +6,8 @@ import Motorcycle from '../../../../src/Domains/Motorcycle';
 import MotorcycleService from '../../../../src/Services/MotorcycleService';
 import CustomError from '../../../../src/Utils/CustomError';
 
-import { motorcycleInput, motorcycleInput2 } from './MotorcycleService.mock';
+import { motorcycleInput, motorcycleInput2,
+  motorcycleInputUpdated } from './MotorcycleService.mock';
 
 const { Model } = mongoose;
 
@@ -71,6 +72,51 @@ describe('service layer test', function () {
 
       try {
         await new MotorcycleService().findById('381596bh2850akba9285');
+      } catch (error) {
+        expect((error as CustomError).message).to.be.equal('Motorcycle not found');
+        expect((error as CustomError).statusCode).to.be.equal(404);
+      }
+    },
+  );
+
+  it('should update the motorcycle successfully', async function () {
+    const motorcycleOutput: Motorcycle = new Motorcycle(
+      { id: '381596bh2850akba9285', ...motorcycleInput },
+    );
+    const motorcycleOutputUpdated: Motorcycle = new Motorcycle(
+      { id: '381596bh2850akba9285', ...motorcycleInputUpdated },
+    );
+
+    sinon.stub(mongoose, 'isValidObjectId').returns(true);
+    sinon.stub(Model, 'findOne').onFirstCall().resolves(motorcycleOutput).onSecondCall()
+      .resolves(motorcycleOutputUpdated);
+    sinon.stub(Model, 'updateOne').resolves();
+
+    const motorcycleUpdated = await new MotorcycleService()
+      .updateById('381596bh2850akba9285', motorcycleInputUpdated);
+
+    expect(motorcycleUpdated).to.deep.equal(motorcycleOutputUpdated);
+  });
+
+  it('should throw an error when trying to update motorcycle with invalid id', async function () {
+    sinon.stub(mongoose, 'isValidObjectId').returns(false);
+
+    try {
+      await new MotorcycleService().updateById('381596bh2850akba9285', motorcycleInputUpdated);
+    } catch (error) {
+      expect((error as CustomError).message).to.be.equal('Invalid mongo id');
+      expect((error as CustomError).statusCode).to.be.equal(422);
+    }
+  });
+
+  it(
+    'should throw an error when trying to update motorcycle with non-existent id',
+    async function () {
+      sinon.stub(mongoose, 'isValidObjectId').returns(true);
+      sinon.stub(Model, 'findOne').resolves(null);
+
+      try {
+        await new MotorcycleService().updateById('381596bh2850akba9285', motorcycleInputUpdated);
       } catch (error) {
         expect((error as CustomError).message).to.be.equal('Motorcycle not found');
         expect((error as CustomError).statusCode).to.be.equal(404);

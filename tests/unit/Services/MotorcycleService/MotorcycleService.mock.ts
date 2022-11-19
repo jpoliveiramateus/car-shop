@@ -10,6 +10,16 @@ export const motorcycleInput: IMotorcycle = {
   engineCapacity: 600,
 };
 
+export const motorcycleInputUpdated: IMotorcycle = {
+  model: 'Honda Cb 600f Hornet',
+  year: 2005,
+  color: 'Black',
+  status: true,
+  buyValue: 30.000,
+  category: 'Street',
+  engineCapacity: 600,
+};
+
 export const motorcycleInput2: IMotorcycle = {
   model: 'CB 500F',
   year: 2022,
